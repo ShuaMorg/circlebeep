@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tap the Circle Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+            height: 100vh;
+        }
+        .circle {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: red;
+            display: none;
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="score">Score: 0</div>
+    <div id="circle" class="circle"></div>
+
+    <script>
+        let score = 0;
+        const scoreDisplay = document.getElementById('score');
+        const circle = document.getElementById('circle');
+
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function beep() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // Frequency in Hz
+            oscillator.start();
+
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.3); // Duration of beep
+
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
+        function getRandomPosition() {
+            const x = Math.random() * (window.innerWidth - 50);
+            const y = Math.random() * (window.innerHeight - 50);
+            return { x, y };
+        }
+
+        function showCircle() {
+            const { x, y } = getRandomPosition();
+            circle.style.left = `${x}px`;
+            circle.style.top = `${y}px`;
+            circle.style.backgroundColor = 'red';
+            circle.style.display = 'block';
+
+            setTimeout(() => {
+                circle.style.display = 'none';
+            }, 300);
+        }
+
+        circle.addEventListener('touchstart', () => {
+            if (circle.style.display === 'block' && circle.style.backgroundColor === 'red') {
+                circle.style.backgroundColor = 'green';
+                beep();
+                score++;
+                scoreDisplay.textContent = `Score: ${score}`;
+            }
+        });
+
+        setInterval(showCircle, 5000);
+    </script>
+</body>
+</html>
